@@ -19,9 +19,10 @@ app.get("/login", (req, res) => {
   res.render("login");
 });
 
-app.get("/profile", isLoggedIn, (req, res) => {
-  console.log(req.user);
-  res.send(`welcome to your profile, Email: ${req.user.email}`);
+app.get("/profile", isLoggedIn, async (req, res) => {
+  let user = await userModel.findOne({email: req.user.email}).populate("posts");
+  // console.log(user);
+  res.render("profile", {user});
 });
 
 
@@ -58,7 +59,7 @@ app.post("/login", async (req, res) => {
     if (result) {
       let token = jwt.sign({ email: user.email, userId: user._id }, "secret");
       res.cookie("token", token);
-      res.status(200).send("Login Successful");
+      res.status(200).redirect("/profile");
     } else res.redirect("/login");
   });
 });
@@ -68,8 +69,23 @@ app.get("/logout", async (req, res) => {
   res.redirect("login");
 });
 
+app.post("/post", isLoggedIn, async (req, res) => {
+  let user = await userModel.findOne({email: req.user.email})
+  const {content} = req.body;
+  console.log(content);
+  let post = await postModel.create({
+    userId: user._id,
+    content
+  })
+  user.posts.push(post._id);
+  await user.save();
+  res.redirect("/profile");
+});
+
+
+
 function isLoggedIn(req, res, next) {
-  if (req.cookies.token === "") res.send("You must be logged in");
+  if (req.cookies.token === "") res.redirect("/login");
   else {
     const data = jwt.verify(req.cookies.token, "secret");
     req.user = data;

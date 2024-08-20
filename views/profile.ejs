@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body>
+    <div class="w-full min-h-screen bg-zinc-900 p-10 text-white">
+      <div class="w-full flex justify-end">
+        <a
+          class="bg-rose-500 px-4 py-2 block rounded-md mb-2 inline-block text-sm"
+          href="/logout"
+          >Logout</a
+        >
+      </div>
+
+      <h3 class="text-3xl mb-5">Hello, <%= user.name %></h3>
+      <h5>You can create a new post</h5>
+      <form method="post" action="/post" class="mt-5">
+        <textarea
+          name="content"
+          class="w-1/3 p-3 resize-none bg-transparent border-2 border-zinc-800 rounded md"
+          placeholder="What's on your mind"
+        ></textarea>
+        <input
+          type="submit"
+          value="submit"
+          class="bg-rose-500 w-36 px-4 py-2 block rounded-md mt-2"
+        />
+      </form>
+      <!-- posts  -->
+      <div class="posts mt-20">
+        <h3 class="text-zinc-400">My posts.</h3>
+        <div class="postContainer mt-5">
+          <% user.posts.reverse().forEach(function(post){ %>
+          <div
+            class="post w-1/3 p-4 border-2 border-zinc-800 bg-zinc-800 rounded-md mb-5"
+          >
+            <h4 class="text-rose-500 font-semibold text-2xl">@<%= user.username %></h4>
+            <p class="text tracking-tight my-1">
+              <%= post.content %>
+            </p>
+            <div class="flex items-center gap-5 mt-4">
+              <a
+                href=""
+                class="text-rose-500 border border-zinc-500 px-3 rounded-sm"
+                >Like</a
+              >
+              <a
+                href=""
+                class="text-zinc-500 border border-zinc-500 px-3 rounded-sm"
+                >Edit</a
+              >
+            </div>
+          </div>
+        </div>
+        <% }) %>
+      </div>
+    </div>
+  </body>
+</html>

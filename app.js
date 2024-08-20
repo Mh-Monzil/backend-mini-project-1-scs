@@ -19,6 +19,12 @@ app.get("/login", (req, res) => {
   res.render("login");
 });
 
+app.get("/profile", isLoggedIn, (req, res) => {
+  console.log(req.user);
+  res.send(`welcome to your profile, Email: ${req.user.email}`);
+});
+
+
 app.post("/register", async (req, res) => {
   const { email, password, username, name, age } = req.body;
 
@@ -36,7 +42,7 @@ app.post("/register", async (req, res) => {
       });
 
       const token = jwt.sign({ email, userId: user._id }, "secret");
-      res.cookie("secret-token", token);
+      res.cookie("token", token);
       res.send("Registration Done!");
     });
   });
@@ -50,16 +56,26 @@ app.post("/login", async (req, res) => {
 
   bcrypt.compare(password, user.password, (err, result) => {
     if (result) {
-      let token = jwt.sign({ email: user.email }, "secret");
-      res.cookie("secret-token", token);
+      let token = jwt.sign({ email: user.email, userId: user._id }, "secret");
+      res.cookie("token", token);
       res.status(200).send("Login Successful");
     } else res.redirect("/login");
   });
 });
 
 app.get("/logout", async (req, res) => {
-  res.cookie("secret-token", "");
+  res.cookie("token", "");
   res.redirect("login");
-})
+});
+
+function isLoggedIn(req, res, next) {
+  if (req.cookies.token === "") res.send("You must be logged in");
+  else {
+    const data = jwt.verify(req.cookies.token, "secret");
+    req.user = data;
+  }
+
+  next();
+}
 
 app.listen(3000);
